@@ -1,6 +1,8 @@
 FROM     ubuntu:14.04
 MAINTAINER Kasper Janssens
 
+RUN echo "Europe/Brussels" > "/etc/timezone"
+
 RUN apt-get update -q && apt-get install -y \
     libbsd-dev \
     git \
@@ -8,7 +10,11 @@ RUN apt-get update -q && apt-get install -y \
     zlib1g-dev \
     wget \
     make \
+    language-pack-en-base \
+    locales \
     && apt-get clean
+
+RUN update-locale LANG=en_US.UTF-8 LC_MESSAGES=POSIX LC_ALL=en_US.UTF-8
 
 RUN wget https://www.haskell.org/ghc/dist/7.10.2/ghc-7.10.2-x86_64-unknown-linux-deb7.tar.bz2 && \
   tar xvfj ghc-7.10.2-x86_64-unknown-linux-deb7.tar.bz2 && \
