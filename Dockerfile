@@ -14,6 +14,7 @@ RUN apt-get update -q && apt-get install -y \
     locales \
     libpcre3-dev \
     software-properties-common \
+    openssh-server \
     && apt-get clean
 
 RUN update-locale LANG=en_US.UTF-8 LC_MESSAGES=POSIX LC_ALL=en_US.UTF-8
@@ -77,5 +78,3 @@ RUN add-apt-repository ppa:webupd8team/java -y && \
 RUN wget http://download.jetbrains.com/idea/ideaIC-14.1.4.tar.gz
 
 RUN tar -xvf ideaIC-14.1.4.tar.gz
-
-RUN git clone git@github.com:KasperJanssens/intellij-haskforce.git -b stack
