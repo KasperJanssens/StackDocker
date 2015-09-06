@@ -12,6 +12,8 @@ RUN apt-get update -q && apt-get install -y \
     make \
     language-pack-en-base \
     locales \
+    libpcre3-dev \
+    software-properties-common \
     && apt-get clean
 
 RUN update-locale LANG=en_US.UTF-8 LC_MESSAGES=POSIX LC_ALL=en_US.UTF-8
@@ -65,3 +67,15 @@ RUN su - developer -c "\
   git submodule update --init --recursive && \
   stack build --copy-bins \
 "
+
+RUN echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
+
+RUN add-apt-repository ppa:webupd8team/java -y && \
+    apt-get update && \
+    apt-get install -y oracle-java8-installer
+
+RUN wget http://download.jetbrains.com/idea/ideaIC-14.1.4.tar.gz
+
+RUN tar -xvf ideaIC-14.1.4.tar.gz
+
+RUN git clone git@github.com:KasperJanssens/intellij-haskforce.git -b stack
