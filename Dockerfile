@@ -15,6 +15,9 @@ RUN apt-get update -q && apt-get install -y \
     libpcre3-dev \
     software-properties-common \
     openssh-server \
+    libxrender1 \
+    libxtst6 \
+    libxi6 \
     && apt-get clean
 
 RUN update-locale LANG=en_US.UTF-8 LC_MESSAGES=POSIX LC_ALL=en_US.UTF-8
