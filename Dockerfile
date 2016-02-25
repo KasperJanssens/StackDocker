@@ -15,6 +15,11 @@ RUN apt-get update -q && apt-get install -y \
     libpcre3-dev \
     software-properties-common \
     openssh-server \
+    libxext-dev \
+    libxrender-dev \
+    libxtst-dev \
+    postgresql \
+    postgresql-server-dev-9.3 \
     && apt-get clean
 
 RUN update-locale LANG=en_US.UTF-8 LC_MESSAGES=POSIX LC_ALL=en_US.UTF-8
@@ -66,6 +71,7 @@ RUN su - developer -c "\
   git clone https://github.com/commercialhaskell/stack-ide.git && \
   cd stack-ide && \
   git submodule update --init --recursive && \
+  stack setup && \
   stack build --copy-bins \
 "
 
@@ -75,6 +81,25 @@ RUN add-apt-repository ppa:webupd8team/java -y && \
     apt-get update && \
     apt-get install -y oracle-java8-installer
 
-RUN wget http://download.jetbrains.com/idea/ideaIC-14.1.4.tar.gz
+RUN su - developer -c "\
+  wget http://download.jetbrains.com/idea/ideaIC-15.0.3.tar.gz && \
+  tar -xvf ideaIC-15.0.3.tar.gz \
+"
 
-RUN tar -xvf ideaIC-14.1.4.tar.gz
+RUN su - postgres -c "\
+  echo \"create user yesod with password 'yesod' login;\" >> yesoddb.sql && \
+  echo \"create database yesod with owner=yesod;\" >>  yesoddb.sql \
+"
+
+
+RUN su - postgres -c "\
+  service postgresql start && \
+  psql < yesoddb.sql \
+"
+
+RUN su - developer -c "\
+  git clone git@github.com:KasperJanssens/yesod-tutorial.git && \
+  cd yesod-tutorial && \
+  stack clean && \
+  stack build \
+"
