@@ -98,8 +98,13 @@ RUN su - postgres -c "\
 "
 
 RUN su - developer -c "\
-  git clone git@github.com:KasperJanssens/yesod-tutorial.git && \
+  git clone https://github.com/KasperJanssens/yesod-tutorial.git && \
   cd yesod-tutorial && \
   stack clean && \
   stack build \
+"
+
+RUN su - developer -c "\
+  cd yesod-tutorial && \
+  stack install hlint stylish-haskell ghc-mod \
 "
