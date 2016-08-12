@@ -82,8 +82,8 @@ RUN add-apt-repository ppa:webupd8team/java -y && \
     apt-get install -y oracle-java8-installer
 
 RUN su - developer -c "\
-  wget http://download.jetbrains.com/idea/ideaIC-15.0.3.tar.gz && \
-  tar -xvf ideaIC-15.0.3.tar.gz \
+  wget http://download.jetbrains.com/idea/ideaIC-2016.2.1.tar.gz && \
+  tar -xvf ideaIC-2016.2.1.tar.gz \
 "
 
 RUN su - postgres -c "\
