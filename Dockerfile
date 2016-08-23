@@ -20,6 +20,7 @@ RUN apt-get update -q && apt-get install -y \
     libxtst-dev \
     postgresql \
     postgresql-server-dev-9.3 \
+    libfontconfig1 \
     && apt-get clean
 
 RUN update-locale LANG=en_US.UTF-8 LC_MESSAGES=POSIX LC_ALL=en_US.UTF-8
