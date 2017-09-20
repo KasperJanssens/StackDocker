@@ -1,4 +1,4 @@
-FROM     ubuntu:14.04
+FROM     ubuntu:16.04
 MAINTAINER Kasper Janssens
 
 RUN echo "Europe/Brussels" > "/etc/timezone"
@@ -18,40 +18,43 @@ RUN apt-get update -q && apt-get install -y \
     libxext-dev \
     libxrender-dev \
     libxtst-dev \
-    postgresql \
-    postgresql-server-dev-9.3 \
     libfontconfig1 \
+    build-essential \
+    curl \
+    sudo \
     && apt-get clean
 
 RUN update-locale LANG=en_US.UTF-8 LC_MESSAGES=POSIX LC_ALL=en_US.UTF-8
 
-RUN wget https://www.haskell.org/ghc/dist/7.10.2/ghc-7.10.2-x86_64-unknown-linux-deb7.tar.bz2 && \
-  tar xvfj ghc-7.10.2-x86_64-unknown-linux-deb7.tar.bz2 && \
-  cd ghc-7.10.2 && \
+RUN wget https://downloads.haskell.org/~ghc/8.2.1/ghc-8.2.1-x86_64-deb8-linux.tar.xz && \
+  tar xvf ghc-8.2.1-x86_64-deb8-linux.tar.xz && \
+  cd ghc-8.2.1 && \
   ./configure && \
   make install 
 
-RUN wget https://www.haskell.org/cabal/release/cabal-1.22.3.0/Cabal-1.22.3.0.tar.gz && \
-  tar xzvf Cabal-1.22.3.0.tar.gz && \
-  cd Cabal-1.22.3.0 && \
+RUN wget https://www.haskell.org/cabal/release/cabal-2.0.0.2/Cabal-2.0.0.2.tar.gz && \
+  tar xzvf Cabal-2.0.0.2.tar.gz && \
+  cd Cabal-2.0.0.2 && \
   ghc --make Setup.hs && \
   ./Setup configure --user && \
   ./Setup build && \
   ./Setup install 
 
-RUN rm -rfv Cabal-1.22.3.0*
+RUN rm -rfv Cabal-2.0.0.2*
 
 RUN useradd developer -d /home/developer -m -s /bin/bash && \
     echo developer:developer | chpasswd && \
     usermod -a -G sudo developer
 
+RUN echo "developer ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
 RUN su - developer -c "\
-  wget https://www.haskell.org/cabal/release/cabal-install-1.22.3.0/cabal-install-1.22.3.0.tar.gz \
+  wget https://www.haskell.org/cabal/release/cabal-install-2.0.0.0/cabal-install-2.0.0.0.tar.gz \
 "
 
 RUN su - developer -c "\
-  tar xzvf cabal-install-1.22.3.0.tar.gz  && \
-  cd cabal-install-1.22.3.0 && \
+  tar xzvf cabal-install-2.0.0.0.tar.gz  && \
+  cd cabal-install-2.0.0.0 && \
   ./bootstrap.sh  \
 "
 
@@ -59,22 +62,9 @@ RUN su - developer -c "\
   echo \"PATH=${PATH}:/home/developer/.cabal/bin\" > /home/developer/.bashrc \
 "
 
-RUN rm -rfv cabal-install-1.22.3.0*
+RUN rm -rfv cabal-install-2.0.0.0*
 
-RUN su - developer -c "\
-  export PATH=${PATH}:/home/developer/.cabal/bin && \
-  cabal update && \
-  cabal install stack \
-"
-
-RUN su - developer -c "\
-  export PATH=${PATH}:/home/developer/.cabal/bin && \
-  git clone https://github.com/commercialhaskell/stack-ide.git && \
-  cd stack-ide && \
-  git submodule update --init --recursive && \
-  stack setup && \
-  stack build --copy-bins \
-"
+RUN wget -qO- https://get.haskellstack.org/ | sh
 
 RUN echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
 
@@ -83,29 +73,5 @@ RUN add-apt-repository ppa:webupd8team/java -y && \
     apt-get install -y oracle-java8-installer
 
 RUN su - developer -c "\
-  wget http://download.jetbrains.com/idea/ideaIC-2016.2.1.tar.gz && \
-  tar -xvf ideaIC-2016.2.1.tar.gz \
-"
-
-RUN su - postgres -c "\
-  echo \"create user yesod with password 'yesod' login;\" >> yesoddb.sql && \
-  echo \"create database yesod with owner=yesod;\" >>  yesoddb.sql \
-"
-
-
-RUN su - postgres -c "\
-  service postgresql start && \
-  psql < yesoddb.sql \
-"
-
-RUN su - developer -c "\
-  git clone https://github.com/KasperJanssens/yesod-tutorial.git && \
-  cd yesod-tutorial && \
-  stack clean && \
-  stack build \
-"
-
-RUN su - developer -c "\
-  cd yesod-tutorial && \
-  stack install hlint stylish-haskell ghc-mod \
+  curl -L https://git.io/haskell-vim-now > /tmp/haskell-vim-now.sh && \
 "
